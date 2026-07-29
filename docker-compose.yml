@@ -1,0 +1,56 @@
+services:
+  api:
+    build: .
+    ports :
+      - "8000:8000"
+    volumes :
+      - .:/app
+    env_file :
+      - .env
+    depends_on :
+      - db
+      - redis
+
+  db :
+    image : postgres:16
+    environment:
+      POSTGRES_USER : postgres
+      POSTGRES_PASSWORD : postgres
+      POSTGRES_DB : chatmpllm
+    ports :
+      - "5462:5432"
+    volumes :
+      - pgdata:/var/lib/postgresql/data
+
+
+  redis :
+    image : redis:7
+    ports :
+      - "6379:6379"
+
+
+  frontend :
+    build :
+      context: ./frontend
+    ports :
+      - "4200:4200"
+    volumes :
+      - ./frontend:/app
+      - /app/node_modules
+    command:
+      - npm start
+
+
+  nginx :
+    image: nginx:alpine
+    ports:
+      - "80:80"
+    volumes :
+      - ./nginx/nginx.config:/etc/nginx.config:ro
+    depends_on:
+      - api
+      - frontend
+volumes:
+  pgdata :
+
+
