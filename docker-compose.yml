@@ -10,6 +10,8 @@ services:
     depends_on :
       - db
       - redis
+    networks:
+      - app-network
 
   db :
     image : postgres:16
@@ -18,28 +20,18 @@ services:
       POSTGRES_PASSWORD : postgres
       POSTGRES_DB : chatmpllm
     ports :
-      - "5462:5432"
+      - "5432:5432"
     volumes :
       - pgdata:/var/lib/postgresql/data
-
+    networks :
+      - app-network
 
   redis :
     image : redis:7
     ports :
       - "6379:6379"
-
-
-  frontend :
-    build :
-      context: ./frontend
-    ports :
-      - "4200:4200"
-    volumes :
-      - ./frontend:/app
-      - /app/node_modules
-    command:
-      - npm start
-
+    networks :
+      - app-network
 
   nginx :
     image: nginx:alpine
@@ -50,7 +42,15 @@ services:
     depends_on:
       - api
       - frontend
+    networks:
+      - app-network
+
+
+networks:
+  app-network :
+    external: true
+
 volumes:
-  pgdata :
+  pgdata:
 
 
