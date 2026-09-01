@@ -41,7 +41,6 @@ services:
       - ./nginx/nginx.config:/etc/nginx.config:ro
     depends_on:
       - api
-      - frontend
     networks:
       - app-network
 

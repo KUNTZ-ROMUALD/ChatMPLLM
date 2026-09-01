@@ -17,10 +17,13 @@ if config.config_file_name is not None:
 
 import sys
 from pathlib import Path
+
 sys.path.append(str(Path(__file__).resolve().parents[1]))
 from app.core.config import settings
-from app.core.database import  Base
-config.set_main_option("sqlalchemy.url",settings.DATABASE_URL)
+from app.core.database import Base
+from app.models.user import User
+
+config.set_main_option("sqlalchemy.url", settings.DATABASE_URL)
 
 
 # add your model's MetaData object here
@@ -28,6 +31,7 @@ config.set_main_option("sqlalchemy.url",settings.DATABASE_URL)
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata
 target_metadata = Base.metadata
+print(Base.metadata.tables.keys())
 
 # other values from the config, defined by the needs of env.py,
 # can be acquired:
@@ -53,6 +57,7 @@ def run_migrations_offline() -> None:
         target_metadata=target_metadata,
         literal_binds=True,
         dialect_opts={"paramstyle": "named"},
+        compare_server_default=True,
     )
 
     with context.begin_transaction():
@@ -73,9 +78,7 @@ def run_migrations_online() -> None:
     )
 
     with connectable.connect() as connection:
-        context.configure(
-            connection=connection, target_metadata=target_metadata
-        )
+        context.configure(connection=connection, target_metadata=target_metadata,compare_server_default=True,)
 
         with context.begin_transaction():
             context.run_migrations()
